@@ -4,14 +4,14 @@ const addTaskBtn = document.getElementById("addtaskBtn");
 const taskList = document.getElementById("taskList");
 const popup = document.getElementById("popup");
 
-// Popup function
+// Fungsi popup
 function showPopup(message, type = "success") {
   popup.textContent = message;
   popup.className = `popup show ${type}`;
-  setTimeout(() => popup.className = "popup", 2000);
+  setTimeout(() => popup.className = "popup", 5000);
 }
 
-// Load tasks from localStorage saat pertama kali buka
+// Load tasks dari localStorage saat pertama buka
 window.addEventListener("load", loadTasks);
 
 // Tambah tugas
@@ -27,10 +27,10 @@ addTaskBtn.addEventListener("click", () => {
 
   taskInput.value = "";
   timeInput.value = "";
-  showPopup("SEMANGATT YAAA!!!");
+  showPopup("SEMANGATTT!!!");
 });
 
-// Tambahin ke DOM
+// Tambah task ke DOM
 function addTaskToDOM(task) {
   const li = document.createElement("li");
 
@@ -80,7 +80,7 @@ function loadTasks() {
   tasks.forEach(task => addTaskToDOM(task));
 }
 
-// Update task (misal checklist)
+// Update task
 function updateTask(text, key, value) {
   let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
   tasks = tasks.map(task => task.text === text ? { ...task, [key]: value } : task);
