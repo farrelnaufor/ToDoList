@@ -1,25 +1,28 @@
 const taskInput = document.getElementById("task-input");
 const timeInput = document.getElementById("time-input");
-const addTaskBtn = document.getElementById("addtaskBtn");
+const addTaskBtn = document.getElementById("addTaskBtn"); // perhatikan huruf T besar
 const taskList = document.getElementById("taskList");
 const popup = document.getElementById("popup");
 
-// Fungsi popup
+// fungsi popup
 function showPopup(message, type = "success") {
   popup.textContent = message;
   popup.className = `popup show ${type}`;
-  setTimeout(() => popup.className = "popup", 5000);
+  setTimeout(() => popup.className = "popup", 2000);
 }
 
-// Load tasks dari localStorage saat pertama buka
+// load data awal
 window.addEventListener("load", loadTasks);
 
-// Tambah tugas
+// tambah tugas
 addTaskBtn.addEventListener("click", () => {
   const taskText = taskInput.value.trim();
   const taskTime = timeInput.value;
 
-  if (taskText === "") return alert("Isi dulu tugasnya!");
+  if (taskText === "") {
+    showPopup("⚠️ Isi dulu tugasnya!", "error");
+    return;
+  }
 
   const task = { text: taskText, time: taskTime, completed: false };
   addTaskToDOM(task);
@@ -27,10 +30,10 @@ addTaskBtn.addEventListener("click", () => {
 
   taskInput.value = "";
   timeInput.value = "";
-  showPopup("SEMANGATTT!!!");
+  showPopup("SEMANGATTT YAAA!!!!");
 });
 
-// Tambah task ke DOM
+// render ke DOM
 function addTaskToDOM(task) {
   const li = document.createElement("li");
 
@@ -59,7 +62,7 @@ function addTaskToDOM(task) {
   deleteBtn.addEventListener("click", () => {
     li.remove();
     deleteTask(task.text);
-    showPopup("KERENNN UDAH SELESAII!!!");
+    showPopup("KERENNN UDAHH SELESAIIII!!!");
   });
 
   li.appendChild(leftDiv);
@@ -67,27 +70,27 @@ function addTaskToDOM(task) {
   taskList.appendChild(li);
 }
 
-// Simpan ke localStorage
+// simpan ke localStorage
 function saveTask(task) {
   let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
   tasks.push(task);
   localStorage.setItem("tasks", JSON.stringify(tasks));
 }
 
-// Load tasks
+// load dari localStorage
 function loadTasks() {
   let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
   tasks.forEach(task => addTaskToDOM(task));
 }
 
-// Update task
+// update task
 function updateTask(text, key, value) {
   let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
   tasks = tasks.map(task => task.text === text ? { ...task, [key]: value } : task);
   localStorage.setItem("tasks", JSON.stringify(tasks));
 }
 
-// Hapus task
+// hapus task
 function deleteTask(text) {
   let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
   tasks = tasks.filter(task => task.text !== text);
