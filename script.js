@@ -1,113 +1,95 @@
 const taskInput = document.getElementById("task-input");
-const taskTime = document.getElementById("task-time");
+const timeInput = document.getElementById("time-input");
 const addTaskBtn = document.getElementById("addtaskBtn");
-const taskList = document.getElementById("TaskList");
+const taskList = document.getElementById("taskList");
 const popup = document.getElementById("popup");
 
-// Fungsi popup
-function showPopup(message) {
+// Popup function
+function showPopup(message, type = "success") {
   popup.textContent = message;
-  popup.classList.add("show");
-  setTimeout(() => popup.classList.remove("show"), 2000);
+  popup.className = `popup show ${type}`;
+  setTimeout(() => popup.className = "popup", 2000);
 }
 
-// Simpan data ke localStorage
-function saveTasks() {
-  const tasks = [];
-  taskList.querySelectorAll("li").forEach(li => {
-    tasks.push({
-      text: li.querySelector(".task-content span").textContent,
-      time: li.querySelector(".task-time")?.textContent.replace("⏰ ", "") || "",
-      done: li.querySelector(".task-checkbox").checked
-    });
-  });
-  localStorage.setItem("tasks", JSON.stringify(tasks));
-}
+// Load tasks from localStorage saat pertama kali buka
+window.addEventListener("load", loadTasks);
 
-// Load data dari localStorage
-function loadTasks() {
-  const saved = JSON.parse(localStorage.getItem("tasks")) || [];
-  saved.forEach(task => createTask(task.text, task.time, task.done));
-}
+// Tambah tugas
+addTaskBtn.addEventListener("click", () => {
+  const taskText = taskInput.value.trim();
+  const taskTime = timeInput.value;
 
+  if (taskText === "") return alert("Isi dulu tugasnya!");
 
-// Buat elemen task baru
-function createTask(text, time, done = false) {
+  const task = { text: taskText, time: taskTime, completed: false };
+  addTaskToDOM(task);
+  saveTask(task);
+
+  taskInput.value = "";
+  timeInput.value = "";
+  showPopup("SEMANGATT YAAA!!!");
+});
+
+// Tambahin ke DOM
+function addTaskToDOM(task) {
   const li = document.createElement("li");
+
+  const leftDiv = document.createElement("div");
+  leftDiv.classList.add("task-left");
 
   const checkbox = document.createElement("input");
   checkbox.type = "checkbox";
-  checkbox.classList.add("task-checkbox");
-  checkbox.checked = done;
-
-  const taskContent = document.createElement("div");
-  taskContent.classList.add("task-content");
-
-  const span = document.createElement("span");
-  span.textContent = text;
-
-  const timeSpan = document.createElement("span");
-  timeSpan.classList.add("task-time");
-  if (time) timeSpan.textContent = `⏰ ${time}`;
-
-  taskContent.appendChild(span);
-  if (time) taskContent.appendChild(timeSpan);
+  checkbox.checked = task.completed;
+  if (task.completed) li.classList.add("completed");
 
   checkbox.addEventListener("change", () => {
-    if (checkbox.checked) {
-      span.style.textDecoration = "line-through";
-      span.style.color = "#6b7280";
-    } else {
-      span.style.textDecoration = "none";
-      span.style.color = "#000";
-    }
-    saveTasks();
+    li.classList.toggle("completed");
+    updateTask(task.text, "completed", checkbox.checked);
   });
+
+  const span = document.createElement("span");
+  span.textContent = task.time ? `${task.text} (${task.time})` : task.text;
+
+  leftDiv.appendChild(checkbox);
+  leftDiv.appendChild(span);
 
   const deleteBtn = document.createElement("button");
   deleteBtn.textContent = "Hapus";
-  deleteBtn.onclick = function () {
-    taskList.removeChild(li);
-    saveTasks();
-    showPopup("KERENNN UDAH SELESAIII!!!!!");
-  };
+  deleteBtn.classList.add("delete-btn");
+  deleteBtn.addEventListener("click", () => {
+    li.remove();
+    deleteTask(task.text);
+    showPopup("KERENNN UDAH SELESAII!!!");
+  });
 
-  li.appendChild(checkbox);
-  li.appendChild(taskContent);
+  li.appendChild(leftDiv);
   li.appendChild(deleteBtn);
   taskList.appendChild(li);
-
-  if (done) {
-    span.style.textDecoration = "line-through";
-    span.style.color = "#6b7280";
-  }
-
-  saveTasks();
 }
 
-// Fungsi tambah task
-function addTask() {
-  const taskText = taskInput.value.trim();
-  const timeValue = taskTime.value;
-
-  if (taskText === "") {
-    alert("Task tidak boleh kosong!");
-    return;
-  }
-
-  createTask(taskText, timeValue, false);
-
-  taskInput.value = "";
-  taskTime.value = "";
-  showPopup("SEMANGATT YAAA!!!!");
+// Simpan ke localStorage
+function saveTask(task) {
+  let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+  tasks.push(task);
+  localStorage.setItem("tasks", JSON.stringify(tasks));
 }
 
-addTaskBtn.addEventListener("click", addTask);
-taskInput.addEventListener("keypress", e => {
-  if (e.key === "Enter") addTask();
-});
+// Load tasks
+function loadTasks() {
+  let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+  tasks.forEach(task => addTaskToDOM(task));
+}
 
-// Load data saat halaman dibuka
-window.onload = loadTasks;
+// Update task (misal checklist)
+function updateTask(text, key, value) {
+  let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+  tasks = tasks.map(task => task.text === text ? { ...task, [key]: value } : task);
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+}
 
-
+// Hapus task
+function deleteTask(text) {
+  let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+  tasks = tasks.filter(task => task.text !== text);
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+}
