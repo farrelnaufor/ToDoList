@@ -8,10 +8,80 @@ const popup = document.getElementById("popup");
 function showPopup(message) {
   popup.textContent = message;
   popup.classList.add("show");
+  setTimeout(() => popup.classList.remove("show"), 2000);
+}
 
-  setTimeout(() => {
-    popup.classList.remove("show");
-  }, 2000);
+// Simpan data ke localStorage
+function saveTasks() {
+  const tasks = [];
+  taskList.querySelectorAll("li").forEach(li => {
+    tasks.push({
+      text: li.querySelector(".task-content span").textContent,
+      time: li.querySelector(".task-time")?.textContent.replace("⏰ ", "") || "",
+      done: li.querySelector(".task-checkbox").checked
+    });
+  });
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+}
+
+// Load data dari localStorage
+function loadTasks() {
+  const saved = JSON.parse(localStorage.getItem("tasks")) || [];
+  saved.forEach(task => createTask(task.text, task.time, task.done));
+}
+
+// Buat elemen task baru
+function createTask(text, time, done = false) {
+  const li = document.createElement("li");
+
+  const checkbox = document.createElement("input");
+  checkbox.type = "checkbox";
+  checkbox.classList.add("task-checkbox");
+  checkbox.checked = done;
+
+  const taskContent = document.createElement("div");
+  taskContent.classList.add("task-content");
+
+  const span = document.createElement("span");
+  span.textContent = text;
+
+  const timeSpan = document.createElement("span");
+  timeSpan.classList.add("task-time");
+  if (time) timeSpan.textContent = `⏰ ${time}`;
+
+  taskContent.appendChild(span);
+  if (time) taskContent.appendChild(timeSpan);
+
+  checkbox.addEventListener("change", () => {
+    if (checkbox.checked) {
+      span.style.textDecoration = "line-through";
+      span.style.color = "#6b7280";
+    } else {
+      span.style.textDecoration = "none";
+      span.style.color = "#000";
+    }
+    saveTasks();
+  });
+
+  const deleteBtn = document.createElement("button");
+  deleteBtn.textContent = "Hapus";
+  deleteBtn.onclick = function () {
+    taskList.removeChild(li);
+    saveTasks();
+    showPopup("KERENNN UDAH SELESAIII!!!!!");
+  };
+
+  li.appendChild(checkbox);
+  li.appendChild(taskContent);
+  li.appendChild(deleteBtn);
+  taskList.appendChild(li);
+
+  if (done) {
+    span.style.textDecoration = "line-through";
+    span.style.color = "#6b7280";
+  }
+
+  saveTasks();
 }
 
 // Fungsi tambah task
@@ -20,67 +90,21 @@ function addTask() {
   const timeValue = taskTime.value;
 
   if (taskText === "") {
-    alert("GA BOLEH KOSONG!");
+    alert("Task tidak boleh kosong!");
     return;
   }
 
-  const li = document.createElement("li");
+  createTask(taskText, timeValue, false);
 
-  const checkbox = document.createElement("input");
-  checkbox.type = "checkbox";
-  checkbox.classList.add("task-checkbox");
-
-  const taskContent = document.createElement("div");
-  taskContent.classList.add("task-content");
-
-  const span = document.createElement("span");
-  span.textContent = taskText;
-
-  const timeSpan = document.createElement("span");
-  timeSpan.classList.add("task-time");
-  if (timeValue) {
-    timeSpan.textContent = `⏰ ${timeValue}`;
-  }
-
-  taskContent.appendChild(span);
-  if (timeValue) taskContent.appendChild(timeSpan);
-
-  checkbox.addEventListener("change", () => {
-    if (checkbox.checked) {
-      span.style.textDecoration = "line-through";
-      span.style.color = "#6b7280";
-      if (timeValue) timeSpan.style.color = "#9ca3af";
-    } else {
-      span.style.textDecoration = "none";
-      span.style.color = "#000";
-      if (timeValue) timeSpan.style.color = "#555";
-    }
-  });
-
-  const deleteBtn = document.createElement("button");
-  deleteBtn.textContent = "Hapus";
-  deleteBtn.onclick = function () {
-    taskList.removeChild(li);
-    showPopup("KERENNN UDAH SELESAII!!!!!");
-  };
-
-  li.appendChild(checkbox);
-  li.appendChild(taskContent);
-  li.appendChild(deleteBtn);
-  taskList.appendChild(li);
-
-  // Reset input
   taskInput.value = "";
   taskTime.value = "";
-
-  // Popup sukses
-  showPopup("SEMANGATTT YAAAA!!!!!");
+  showPopup("SEMANGATT YAAA!!!!");
 }
 
 addTaskBtn.addEventListener("click", addTask);
-
-taskInput.addEventListener("keypress", function (e) {
-  if (e.key === "Enter") {
-    addTask();
-  }
+taskInput.addEventListener("keypress", e => {
+  if (e.key === "Enter") addTask();
 });
+
+// Load data saat halaman dibuka
+window.onload = loadTasks;
