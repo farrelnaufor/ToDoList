@@ -30,35 +30,6 @@ function loadTasks() {
   saved.forEach(task => createTask(task.text, task.time, task.done));
 }
 
-.popup {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  padding: 12px 18px;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  font-size: 14px;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(-20px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  z-index: 999;
-}
-
-.popup.show {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.popup.success {
-  background: #10b981;
-  color: white;
-}
-
-.popup.error {
-  background: #ef4444;
-  color: white;
-}
 
 // Buat elemen task baru
 function createTask(text, time, done = false) {
@@ -138,4 +109,5 @@ taskInput.addEventListener("keypress", e => {
 
 // Load data saat halaman dibuka
 window.onload = loadTasks;
+
 
